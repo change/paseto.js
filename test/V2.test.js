@@ -1,5 +1,6 @@
 const assert = require('assert');
 const sodium = require('libsodium-wrappers-sumo');
+const zlib = require('zlib');
 
 const Paseto = require('../lib/paseto');
 
@@ -492,6 +493,94 @@ describe('Protocol V2', () => {
 
             assert.equal(typeof data, 'string');
             assert.equal(data, message);
+
+            return done();
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      });
+    });
+
+    describe('binary', () => {
+
+      before(() => {
+        message = zlib.gzipSync(Buffer.from('testing')).toString('binary');
+      });
+
+      it('should sign and verify successfully - callback api', (done) => {
+
+        V2.binary().sign(message, sk, '', (err, token) => {
+          if (err) { return done(err); }
+
+          assert.equal(typeof token, 'string');
+          assert.equal(token.substring(0, 10), 'v2.public.');
+
+          V2.binary().verify(token, pk, '', (err, data) => {
+            if (err) { return done(err); }
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+
+            done();
+          });
+        });
+      });
+
+      it('should sign and verify successfully - promise api', (done) => {
+
+        V2.binary().sign(message, sk, '')
+          .then((token) => {
+
+            assert.equal(typeof token, 'string');
+            assert.equal(token.substring(0, 10), 'v2.public.');
+
+            return V2.binary().verify(token, pk, '');
+          })
+          .then((data) => {
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+
+            return done();
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      });
+
+      it('should sign and verify successfully with footer - callback api', (done) => {
+
+        V2.binary().sign(message, sk, footer, (err, token) => {
+          if (err) { return done(err); }
+
+          assert.equal(typeof token, 'string');
+          assert.equal(token.substring(0, 10), 'v2.public.');
+
+          V2.binary().verify(token, pk, footer, (err, data) => {
+            if (err) { return done(err); }
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+
+            done();
+          });
+        });
+      });
+
+      it('should sign and verify successfully with footer - promise api', (done) => {
+
+        V2.binary().sign(message, sk, footer)
+          .then((token) => {
+
+            assert.equal(typeof token, 'string');
+            assert.equal(token.substring(0, 10), 'v2.public.');
+
+            return V2.binary().verify(token, pk, footer);
+          })
+          .then((data) => {
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
 
             return done();
           })

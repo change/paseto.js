@@ -39,6 +39,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+package-lock.json
 
 # Typescript v1 declaration files
 typings/
@@ -60,7 +61,7 @@ typings/
 
 # dotenv environment variables file
 .env
-
+.nvmrc
 
 
 # End of https://www.gitignore.io/api/node
