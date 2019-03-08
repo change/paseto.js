@@ -225,6 +225,95 @@ describe('Protocol V2', () => {
       });
     });
 
+    describe('binary', () => {
+
+      before(() => {
+        message = zlib.gzipSync(Buffer.from('test')).toString('binary');
+      });
+
+      it('should encrypt and decrypt successfully - callback api', (done) => {
+
+        V2.binary().encrypt(message, key, '', (err, token) => {
+          if (err) { return done(err); }
+
+          assert.equal(typeof token, 'string');
+          assert.equal(token.substring(0, 9), 'v2.local.');
+
+          V2.binary().decrypt(token, key, '', (err, data) => {
+            if (err) { return done(err); }
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
+
+            done();
+          });
+        });
+      });
+
+      it('should encrypt and decrypt successfully - promise api', (done) => {
+
+        V2.binary().encrypt(message, key, '')
+          .then((token) => {
+
+            assert.equal(typeof token, 'string');
+            assert.equal(token.substring(0, 9), 'v2.local.');
+
+            return V2.binary().decrypt(token, key, '');
+          })
+          .then((data) => {
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
+
+            return done();
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      });
+
+      it('should encrypt and decrypt successfully with footer - callback api', (done) => {
+
+        V2.binary().encrypt(message, key, footer, (err, token) => {
+          if (err) { return done(err); }
+
+          assert.equal(typeof token, 'string');
+          assert.equal(token.substring(0, 9), 'v2.local.');
+
+          V2.binary().decrypt(token, key, footer, (err, data) => {
+            if (err) { return done(err); }
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
+
+            done();
+          });
+        });
+      });
+
+      it('should encrypt and decrypt successfully with footer - promise api', (done) => {
+
+        V2.binary().encrypt(message, key, footer)
+          .then((token) => {
+
+            assert.equal(typeof token, 'string');
+            assert.equal(token.substring(0, 9), 'v2.local.');
+
+            return V2.binary().decrypt(token, key, footer);
+          })
+          .then((data) => {
+
+            assert.equal(typeof data, 'string');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
+
+            return done();
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      });
+    });
+
     describe('errors', () => {
 
       const InvalidVersionError = require('../lib/error/InvalidVersionError');
@@ -505,7 +594,7 @@ describe('Protocol V2', () => {
     describe('binary', () => {
 
       before(() => {
-        message = zlib.gzipSync(Buffer.from('testing')).toString('binary');
+        message = zlib.gzipSync(Buffer.from('test')).toString('binary');
       });
 
       it('should sign and verify successfully - callback api', (done) => {
@@ -520,7 +609,7 @@ describe('Protocol V2', () => {
             if (err) { return done(err); }
 
             assert.equal(typeof data, 'string');
-            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
 
             done();
           });
@@ -539,7 +628,7 @@ describe('Protocol V2', () => {
           })
           .then((data) => {
             assert.equal(typeof data, 'string');
-            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
 
             return done();
           })
@@ -560,7 +649,7 @@ describe('Protocol V2', () => {
             if (err) { return done(err); }
 
             assert.equal(typeof data, 'string');
-            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
 
             done();
           });
@@ -580,7 +669,7 @@ describe('Protocol V2', () => {
           .then((data) => {
 
             assert.equal(typeof data, 'string');
-            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'testing');
+            assert.equal(zlib.gunzipSync(Buffer.from(data, 'binary')).toString(), 'test');
 
             return done();
           })
